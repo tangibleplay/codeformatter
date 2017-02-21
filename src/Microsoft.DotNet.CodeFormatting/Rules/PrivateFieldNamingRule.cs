@@ -106,6 +106,13 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     name = char.ToLower(name[0]) + name.Substring(1);
                 }
 
+                // Convert from snake_case to camelCase
+                // note that the name is trimmed of leading / ending underscores atm
+                if (name.Contains("_"))
+                {
+                    name = Regex.Replace(name, @"_(\w)", (match) => match.Groups[1].Value.ToUpper(), RegexOptions.Compiled);
+                }
+
                 return name + "_";
             }
 
@@ -177,7 +184,24 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         private static bool IsGoodPrivateFieldName(string name, bool isInstance)
         {
-            return name.Length > 0 && name[name.Length - 1] == '_';
+            if (name.Length > 0)
+            {
+                return false;
+            }
+
+            string trimmedName = name.Trim('_');
+            if (trimmedName.Contains("_"))
+            {
+                return false;
+            }
+
+            bool endsWithUnderscore = name[name.Length - 1] == '_';
+            if (!endsWithUnderscore)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
