@@ -15,9 +15,9 @@ namespace Microsoft.DotNet.CodeFormatting
     internal static class SyntaxUtil
     {
         /// <summary>
-        /// Look at the context of the node to determine the best possible new line trivia.  It will prefer 
-        /// existing new lines over creating a new one to help ensure the same new lines are preserved 
-        /// throughout the file. 
+        /// Look at the context of the node to determine the best possible new line trivia.  It will prefer
+        /// existing new lines over creating a new one to help ensure the same new lines are preserved
+        /// throughout the file.
         /// </summary>
         internal static SyntaxTrivia GetBestNewLineTrivia(SyntaxNode node, SyntaxTrivia? defaultNewLineTrivia = null)
         {
@@ -28,7 +28,7 @@ namespace Microsoft.DotNet.CodeFormatting
                 return trivia;
             }
 
-            return defaultNewLineTrivia ?? SyntaxFactory.CarriageReturnLineFeed;
+            return defaultNewLineTrivia ?? SyntaxFactory.LineFeed;
         }
 
         internal static SyntaxTrivia GetBestNewLineTrivia(SyntaxToken token, SyntaxTrivia? defaultNewLineTrivia = null)
@@ -40,7 +40,7 @@ namespace Microsoft.DotNet.CodeFormatting
                 return trivia;
             }
 
-            return defaultNewLineTrivia ?? SyntaxFactory.CarriageReturnLineFeed;
+            return defaultNewLineTrivia ?? SyntaxFactory.LineFeed;
         }
 
         internal static SyntaxTrivia GetBestNewLineTrivia(SyntaxTriviaList list, SyntaxTrivia? defaultNewLineTrivia = null)
@@ -51,7 +51,7 @@ namespace Microsoft.DotNet.CodeFormatting
                 return trivia;
             }
 
-            return defaultNewLineTrivia ?? SyntaxFactory.CarriageReturnLineFeed;
+            return defaultNewLineTrivia ?? SyntaxFactory.LineFeed;
         }
 
         private static bool TryGetExistingNewLine(SyntaxTriviaList list, out SyntaxTrivia newLineTrivia)
@@ -70,7 +70,7 @@ namespace Microsoft.DotNet.CodeFormatting
         }
 
         /// <summary>
-        /// Is this a trivia element which is a conditional directive? 
+        /// Is this a trivia element which is a conditional directive?
         /// </summary>
         internal static bool IsConditionalDirective(this SyntaxTrivia trivia)
         {
@@ -86,7 +86,7 @@ namespace Microsoft.DotNet.CodeFormatting
         }
 
         /// <summary>
-        /// Is this any trivia element which represents a new line 
+        /// Is this any trivia element which represents a new line
         /// </summary>
         internal static bool IsAnyEndOfLine(this SyntaxTrivia trivia)
         {
@@ -94,7 +94,7 @@ namespace Microsoft.DotNet.CodeFormatting
         }
 
         /// <summary>
-        /// Find the node directly before this in the parent.  Returns null in the case it 
+        /// Find the node directly before this in the parent.  Returns null in the case it
         /// cannot be found.
         /// </summary>
         internal static SyntaxNode FindPreviousNodeInParent(this SyntaxNode node)

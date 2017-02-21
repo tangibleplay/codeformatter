@@ -49,7 +49,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             protected override SyntaxTrivia CreateNewLine()
             {
-                return SyntaxFactory.CarriageReturnLineFeed;
+                return SyntaxFactory.LineFeed;
             }
         }
     }

@@ -8,13 +8,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.VisualBasic;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.VisualBasic;
+using System.Linq;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
@@ -40,7 +41,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         public async Task<SyntaxNode> ProcessAsync(Document document, SyntaxNode syntaxNode, CancellationToken cancellationToken)
         {
-            document = await Formatter.FormatAsync(document, cancellationToken: cancellationToken);
+            // HACK (darren): change new line options to use "\n" instead of default "\r\n"
+            var originalSolution = document.Project.Solution;
+            var optionSet = originalSolution.Workspace.Options;
+            optionSet = optionSet.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
+
+            document = await Formatter.FormatAsync(document, optionSet, cancellationToken: cancellationToken);
 
             if (!_options.PreprocessorConfigurations.IsDefaultOrEmpty)
             {
@@ -54,7 +60,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
                     var newParseOptions = WithPreprocessorSymbols(parseOptions, list);
                     document = project.WithParseOptions(newParseOptions).GetDocument(document.Id);
-                    document = await Formatter.FormatAsync(document, cancellationToken: cancellationToken);
+                    document = await Formatter.FormatAsync(document, optionSet, cancellationToken: cancellationToken);
                 }
             }
 
