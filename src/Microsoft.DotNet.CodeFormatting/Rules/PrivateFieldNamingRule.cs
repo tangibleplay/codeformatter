@@ -20,7 +20,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     internal partial class PrivateFieldNamingRule : IGlobalSemanticFormattingRule
     {
         internal const string Name = "FieldNames";
-        internal const string Description = "Prefix private fields with _ and statics with s_";
+        internal const string Description = "Postfix private fields with _";
 
         #region CommonRule
 
@@ -29,7 +29,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             protected abstract SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count);
 
             /// <summary>
-            /// This method exists to work around DevDiv 1086632 in Roslyn.  The Rename action is 
+            /// This method exists to work around DevDiv 1086632 in Roslyn.  The Rename action is
             /// leaving a set of annotations in the tree.  These annotations slow down further processing
             /// and eventually make the rename operation unusable.  As a temporary work around we manually
             /// remove these from the tree.
@@ -106,20 +106,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     name = char.ToLower(name[0]) + name.Substring(1);
                 }
 
-                if (fieldSymbol.IsStatic)
-                {
-                    // Check for ThreadStatic private fields.
-                    if (fieldSymbol.GetAttributes().Any(a => a.AttributeClass.Name.Equals("ThreadStaticAttribute", StringComparison.Ordinal)))
-                    {
-                        return "t_" + name;
-                    }
-                    else
-                    {
-                        return "s_" + name;
-                    }
-                }
-
-                return "_" + name;
+                return name + "_";
             }
 
             private async Task<Solution> CleanSolutionAsync(Solution newSolution, Solution oldSolution, CancellationToken cancellationToken)
@@ -190,14 +177,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         private static bool IsGoodPrivateFieldName(string name, bool isInstance)
         {
-            if (isInstance)
-            {
-                return name.Length > 0 && name[0] == '_';
-            }
-            else
-            {
-                return name.Length > 1 && (name[0] == 's' || name[0] == 't') && name[1] == '_';
-            }
+            return name.Length > 0 && name[name.Length - 1] == '_';
         }
     }
 }

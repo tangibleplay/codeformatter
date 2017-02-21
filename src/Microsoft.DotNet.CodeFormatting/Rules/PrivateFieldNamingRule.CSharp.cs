@@ -83,6 +83,11 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     return false;
                 }
 
+                if (IsSerializedField(fieldSyntax))
+                {
+                    return false;
+                }
+
                 foreach (var v in fieldSyntax.Declaration.Variables)
                 {
                     if (!IsGoodPrivateFieldName(v.Identifier.ValueText, isInstance))
@@ -103,11 +108,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     switch (modifier.Kind())
                     {
                         case SyntaxKind.PublicKeyword:
-                        case SyntaxKind.ConstKeyword:
-                        case SyntaxKind.InternalKeyword:
-                        case SyntaxKind.ProtectedKeyword:
                             isPrivate = false;
                             break;
+                        case SyntaxKind.ConstKeyword:
                         case SyntaxKind.StaticKeyword:
                             isInstance = false;
                             break;
@@ -116,10 +119,22 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
                 return isPrivate;
             }
+
+            private static bool IsSerializedField(FieldDeclarationSyntax fieldSyntax) {
+                foreach (AttributeListSyntax attributeList in fieldSyntax.AttributeLists)
+                {
+                    if (attributeList.DescendantNodes().OfType<AttributeSyntax>().Any(a => a.Name.ToString() == "SerializeField"))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         /// <summary>
-        /// This rewriter exists to work around DevDiv 1086632 in Roslyn.  The Rename action is 
+        /// This rewriter exists to work around DevDiv 1086632 in Roslyn.  The Rename action is
         /// leaving a set of annotations in the tree.  These annotations slow down further processing
         /// and eventually make the rename operation unusable.  As a temporary work around we manually
         /// remove these from the tree.
