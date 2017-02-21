@@ -184,7 +184,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         private static bool IsGoodPrivateFieldName(string name, bool isInstance)
         {
-            if (name.Length > 0)
+            if (name.Length <= 0)
             {
                 return false;
             }
