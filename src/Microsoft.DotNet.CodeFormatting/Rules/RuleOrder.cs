@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
-    // Please keep these values sorted by number, not rule name.    
+    // Please keep these values sorted by number, not rule name.
     internal static class SyntaxRuleOrder
     {
         public const int HasNoCustomCopyrightHeaderFormattingRule = 1;
@@ -21,7 +21,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         public const int CopyrightHeaderRule = 6;
     }
 
-    // Please keep these values sorted by number, not rule name.    
+    // Please keep these values sorted by number, not rule name.
     internal static class LocalSemanticRuleOrder
     {
         public const int HasNoIllegalHeadersFormattingRule = 1;
@@ -31,10 +31,11 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         public const int AssertArgumentOrderRule = 5;
     }
 
-    // Please keep these values sorted by number, not rule name.    
+    // Please keep these values sorted by number, not rule name.
     internal static class GlobalSemanticRuleOrder
     {
         public const int PrivateFieldNamingRule = 1;
-        public const int MarkReadonlyFieldsRule = 2;
+        public const int MethodNamingRule = 2;
+        public const int MarkReadonlyFieldsRule = 3;
     }
 }
