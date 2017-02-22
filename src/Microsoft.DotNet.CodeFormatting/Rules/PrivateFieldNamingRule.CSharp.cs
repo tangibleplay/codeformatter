@@ -50,19 +50,24 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             public override SyntaxNode VisitFieldDeclaration(FieldDeclarationSyntax node)
             {
-                bool isInstance;
-                if (NeedsRewrite(node, out isInstance))
+                bool isConstant;
+                if (NeedsRewrite(node, out isConstant))
                 {
                     var list = new List<VariableDeclaratorSyntax>(node.Declaration.Variables.Count);
                     foreach (var v in node.Declaration.Variables)
                     {
-                        if (IsGoodPrivateFieldName(v.Identifier.Text, isInstance))
+                        if (IsGoodPrivateFieldName(v.Identifier.Text, isConstant))
                         {
                             list.Add(v);
                         }
                         else
                         {
-                            list.Add(v.WithAdditionalAnnotations(s_markerAnnotation));
+                            var vWithAdditional = v;
+                            if (isConstant)
+                            {
+                                vWithAdditional = vWithAdditional.WithAdditionalAnnotations(s_constantAnnotation);
+                            }
+                            list.Add(vWithAdditional.WithAdditionalAnnotations(s_markerAnnotation));
                             _count++;
                         }
                     }
@@ -76,9 +81,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 return node;
             }
 
-            private static bool NeedsRewrite(FieldDeclarationSyntax fieldSyntax, out bool isInstance)
+            private static bool NeedsRewrite(FieldDeclarationSyntax fieldSyntax, out bool isConstant)
             {
-                if (!IsPrivateField(fieldSyntax, out isInstance))
+                if (!IsPrivateField(fieldSyntax, out isConstant))
                 {
                     return false;
                 }
@@ -90,7 +95,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
                 foreach (var v in fieldSyntax.Declaration.Variables)
                 {
-                    if (!IsGoodPrivateFieldName(v.Identifier.ValueText, isInstance))
+                    if (!IsGoodPrivateFieldName(v.Identifier.ValueText, isConstant))
                     {
                         return true;
                     }
@@ -99,10 +104,10 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 return false;
             }
 
-            private static bool IsPrivateField(FieldDeclarationSyntax fieldSyntax, out bool isInstance)
+            private static bool IsPrivateField(FieldDeclarationSyntax fieldSyntax, out bool isConstant)
             {
                 var isPrivate = true;
-                isInstance = true;
+                isConstant = false;
                 foreach (var modifier in fieldSyntax.Modifiers)
                 {
                     switch (modifier.Kind())
@@ -111,8 +116,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                             isPrivate = false;
                             break;
                         case SyntaxKind.ConstKeyword:
-                        case SyntaxKind.StaticKeyword:
-                            isInstance = false;
+                            isConstant = true;
                             break;
                     }
                 }

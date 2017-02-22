@@ -61,5 +61,19 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             return name;
         }
+
+        public static string Captialized(this string s) {
+            if (s.Length <= 0)
+            {
+                return s;
+            }
+
+            if (char.IsLower(s[0]))
+            {
+                s = Regex.Replace(s, @"^\w", (match) => match.Groups[0].Value.ToUpper(), RegexOptions.Compiled);
+            }
+
+            return s;
+        }
     }
 }

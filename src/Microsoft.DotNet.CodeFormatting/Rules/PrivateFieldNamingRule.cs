@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -64,10 +65,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     var root = await semanticModel.SyntaxTree.GetRootAsync(cancellationToken);
                     var declaration = root.GetAnnotatedNodes(s_markerAnnotation).ElementAt(i);
 
+                    bool isConstant = declaration.HasAnnotation(s_constantAnnotation);
+
                     // Make note, VB represents "fields" marked as "WithEvents" as properties, so don't be
                     // tempted to treat this as a IFieldSymbol. We only need the name, so ISymbol is enough.
                     var fieldSymbol = semanticModel.GetDeclaredSymbol(declaration, cancellationToken);
-                    var newName = GetNewFieldName(fieldSymbol);
+                    var newName = GetNewFieldName(fieldSymbol, isConstant);
 
                     // Can happen with pathologically bad field names like _
                     if (newName == fieldSymbol.Name)
@@ -82,9 +85,17 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 return solution;
             }
 
-            private static string GetNewFieldName(ISymbol fieldSymbol)
+            private static string GetNewFieldName(ISymbol fieldSymbol, bool isConstant)
             {
-                return NamingUtil.ConvertToCamelCase(fieldSymbol.Name) + "_";
+                string camelCaseName = NamingUtil.ConvertToCamelCase(fieldSymbol.Name);
+                if (isConstant)
+                {
+                    return "k" + camelCaseName.Captialized();
+                }
+                else
+                {
+                    return camelCaseName + "_";
+                }
             }
 
             private async Task<Solution> CleanSolutionAsync(Solution newSolution, Solution oldSolution, CancellationToken cancellationToken)
@@ -121,6 +132,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         private const string s_renameAnnotationName = "Rename";
 
         private readonly static SyntaxAnnotation s_markerAnnotation = new SyntaxAnnotation("PrivateFieldToRename");
+        private readonly static SyntaxAnnotation s_constantAnnotation = new SyntaxAnnotation("ConstantField");
 
         // Used to avoid the array allocation on calls to WithAdditionalAnnotations
         private readonly static SyntaxAnnotation[] s_markerAnnotationArray;
@@ -153,7 +165,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             }
         }
 
-        private static bool IsGoodPrivateFieldName(string name, bool isInstance)
+        private static bool IsGoodPrivateFieldName(string name, bool isConstant)
         {
             if (name.Length <= 0)
             {
@@ -166,10 +178,19 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 return false;
             }
 
-            bool endsWithUnderscore = name[name.Length - 1] == '_';
-            if (!endsWithUnderscore)
+            if (isConstant)
             {
-                return false;
+                bool startsWithK = name[0] == 'k';
+                if (!startsWithK)
+                {
+                    return false;
+                }
+            } else {
+                bool endsWithUnderscore = name[name.Length - 1] == '_';
+                if (!endsWithUnderscore)
+                {
+                    return false;
+                }
             }
 
             return true;

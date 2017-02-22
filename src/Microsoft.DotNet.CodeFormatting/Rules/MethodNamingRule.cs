@@ -84,17 +84,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             private static string GetNewMethodName(ISymbol methodSymbol)
             {
-                string name = methodSymbol.Name;
-                if (name.Length <= 0)
-                {
-                    return name;
-                }
-
-                if (char.IsLower(name[0])) {
-                    name = Regex.Replace(name, @"^\w", (match) => match.Groups[0].Value.ToUpper(), RegexOptions.Compiled);
-                }
-
-                return name;
+                return methodSymbol.Name.Captialized();
             }
 
             private async Task<Solution> CleanSolutionAsync(Solution newSolution, Solution oldSolution, CancellationToken cancellationToken)
