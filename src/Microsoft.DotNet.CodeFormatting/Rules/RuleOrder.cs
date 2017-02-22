@@ -36,6 +36,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     {
         public const int PrivateFieldNamingRule = 1;
         public const int MethodNamingRule = 2;
-        public const int MarkReadonlyFieldsRule = 3;
+        public const int LocalVariableNamingRule = 3;
+        public const int MarkReadonlyFieldsRule = 4;
     }
 }

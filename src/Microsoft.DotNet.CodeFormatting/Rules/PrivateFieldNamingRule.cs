@@ -84,36 +84,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             private static string GetNewFieldName(ISymbol fieldSymbol)
             {
-                var name = fieldSymbol.Name.Trim('_');
-                if (name.Length > 2 && char.IsLetter(name[0]) && name[1] == '_')
-                {
-                    name = name.Substring(2);
-                }
-
-                // Some .NET code uses "ts_" prefix for thread static
-                if (name.Length > 3 && name.StartsWith("ts_", StringComparison.OrdinalIgnoreCase))
-                {
-                    name = name.Substring(3);
-                }
-
-                if (name.Length == 0)
-                {
-                    return fieldSymbol.Name;
-                }
-
-                if (name.Length > 2 && char.IsUpper(name[0]) && char.IsLower(name[1]))
-                {
-                    name = char.ToLower(name[0]) + name.Substring(1);
-                }
-
-                // Convert from snake_case to camelCase
-                // note that the name is trimmed of leading / ending underscores atm
-                if (name.Contains("_"))
-                {
-                    name = Regex.Replace(name, @"_(\w)", (match) => match.Groups[1].Value.ToUpper(), RegexOptions.Compiled);
-                }
-
-                return name + "_";
+                return NamingUtil.ConvertToCamelCase(fieldSymbol.Name) + "_";
             }
 
             private async Task<Solution> CleanSolutionAsync(Solution newSolution, Solution oldSolution, CancellationToken cancellationToken)

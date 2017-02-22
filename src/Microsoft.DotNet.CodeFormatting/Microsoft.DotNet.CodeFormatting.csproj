@@ -88,6 +88,7 @@
     <Compile Include="RuleAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IRuleMetadata.cs" />
+    <Compile Include="Rules\Core\NamingUtil.cs" />
     <Compile Include="Rules\ExplicitVisibilityRule.CSharp.cs" />
     <Compile Include="Rules\ExplicitVisibilityRule.VisualBasic.cs" />
     <Compile Include="Rules\PrivateFieldNamingRule.CSharp.cs" />
@@ -103,7 +104,9 @@
     <Compile Include="Rules\NewLineAboveRule.cs" />
     <Compile Include="Rules\HasNoIllegalHeadersFormattingRule.cs" />
     <Compile Include="Rules\HasNoCustomCopyrightHeaderFormattingRule.cs" />
+    <Compile Include="Rules\CSharpNamingRule.cs" />
     <Compile Include="Rules\PrivateFieldNamingRule.cs" />
+    <Compile Include="Rules\LocalVariableNamingRule.cs" />
     <Compile Include="Rules\MethodNamingRule.cs" />
     <Compile Include="Rules\UsingLocationRule.cs" />
     <Compile Include="Rules\FormatDocumentFormattingRule.cs" />
