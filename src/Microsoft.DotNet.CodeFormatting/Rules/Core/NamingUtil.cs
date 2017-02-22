@@ -48,6 +48,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 name = char.ToLower(name[0]) + name.Substring(1);
             }
 
+            // Example: TEST_POWER => Test_Power
+            // Example: WHY_wouldYouDoThis => Why_wouldYouDoThis
+            //
+            // Step-by-step:
+            // WHY_wouldYouDoThis
+            // Why_wouldYouDoThis
+            name = Regex.Replace(name, @"([A-Z])([A-Z]+)", (match) => match.Groups[1].Value + match.Groups[2].Value.ToLower(), RegexOptions.Compiled);
+
             // Convert from snake_case to camelCase
             // note that the name is trimmed of leading / ending underscores atm
             if (name.Contains("_"))
