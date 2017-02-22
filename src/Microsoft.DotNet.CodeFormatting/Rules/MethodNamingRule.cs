@@ -12,131 +12,52 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
     [GlobalSemanticRule(MethodNamingRule.Name, MethodNamingRule.Description, GlobalSemanticRuleOrder.MethodNamingRule)]
-    internal partial class MethodNamingRule : IGlobalSemanticFormattingRule
+    internal class MethodNamingRule : CSharpNamingRule
     {
         internal const string Name = "MethodNames";
-        internal const string Description = "Ensure method names are TitleCase";
+        internal const string Description = "Ensure method names are capitalized";
 
-        #region CommonRule
-
-        private abstract class CommonRule
+        protected override SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count)
         {
-            protected abstract SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count);
-
-            /// <summary>
-            /// This method exists to work around DevDiv 1086632 in Roslyn.  The Rename action is
-            /// leaving a set of annotations in the tree.  These annotations slow down further processing
-            /// and eventually make the rename operation unusable.  As a temporary work around we manually
-            /// remove these from the tree.
-            /// </summary>
-            protected abstract SyntaxNode RemoveRenameAnnotations(SyntaxNode syntaxNode);
-
-            public async Task<Solution> ProcessAsync(Document document, SyntaxNode syntaxRoot, CancellationToken cancellationToken)
-            {
-                int count;
-                var newSyntaxRoot = AddPrivateFieldAnnotations(syntaxRoot, out count);
-
-                if (count == 0)
-                {
-                    return document.Project.Solution;
-                }
-
-                var documentId = document.Id;
-                var solution = document.Project.Solution;
-                solution = solution.WithDocumentSyntaxRoot(documentId, newSyntaxRoot);
-                solution = await RenameFields(solution, documentId, count, cancellationToken);
-                return solution;
-            }
-
-            private async Task<Solution> RenameFields(Solution solution, DocumentId documentId, int count, CancellationToken cancellationToken)
-            {
-                Solution oldSolution = null;
-                for (int i = 0; i < count; i++)
-                {
-                    oldSolution = solution;
-
-                    var semanticModel = await solution.GetDocument(documentId).GetSemanticModelAsync(cancellationToken);
-                    var root = await semanticModel.SyntaxTree.GetRootAsync(cancellationToken);
-                    var declaration = root.GetAnnotatedNodes(s_markerAnnotation).ElementAt(i);
-
-                    // Make note, VB represents "fields" marked as "WithEvents" as properties, so don't be
-                    // tempted to treat this as a IFieldSymbol. We only need the name, so ISymbol is enough.
-                    var methodSymbol = semanticModel.GetDeclaredSymbol(declaration, cancellationToken);
-                    var newName = GetNewMethodName(methodSymbol);
-
-                    // Can happen with pathologically bad field names like _
-                    if (newName == methodSymbol.Name)
-                    {
-                        continue;
-                    }
-
-                    solution = await Renamer.RenameSymbolAsync(solution, methodSymbol, newName, solution.Workspace.Options, cancellationToken).ConfigureAwait(false);
-                    solution = await CleanSolutionAsync(solution, oldSolution, cancellationToken);
-                }
-
-                return solution;
-            }
-
-            private static string GetNewMethodName(ISymbol methodSymbol)
-            {
-                return methodSymbol.Name.Captialized();
-            }
-
-            private async Task<Solution> CleanSolutionAsync(Solution newSolution, Solution oldSolution, CancellationToken cancellationToken)
-            {
-                var solution = newSolution;
-
-                foreach (var projectChange in newSolution.GetChanges(oldSolution).GetProjectChanges())
-                {
-                    foreach (var documentId in projectChange.GetChangedDocuments())
-                    {
-                        solution = await CleanSolutionDocument(solution, documentId, cancellationToken);
-                    }
-                }
-
-                return solution;
-            }
-
-            private async Task<Solution> CleanSolutionDocument(Solution solution, DocumentId documentId, CancellationToken cancellationToken)
-            {
-                var document = solution.GetDocument(documentId);
-                var syntaxNode = await document.GetSyntaxRootAsync(cancellationToken);
-                if (syntaxNode == null)
-                {
-                    return solution;
-                }
-
-                var newNode = RemoveRenameAnnotations(syntaxNode);
-                return solution.WithDocumentSyntaxRoot(documentId, newNode);
-            }
+            return CSharpLocalVariableAnnotationsRewriter.AddAnnotations(syntaxNode, out count);
         }
 
-        #endregion
-
-        private const string s_renameAnnotationName = "RenameMethod";
-
-        private readonly static SyntaxAnnotation s_markerAnnotation = new SyntaxAnnotation("MethodToRename");
-
-        private readonly CSharpRule _csharpRule = new CSharpRule();
-
-        public bool SupportsLanguage(string languageName)
+        protected override string GetNewNameFor(ISymbol symbol)
         {
-            return languageName == LanguageNames.CSharp;
+            return symbol.Name.Captialized();
         }
 
-        public Task<Solution> ProcessAsync(Document document, SyntaxNode syntaxRoot, CancellationToken cancellationToken)
+        /// <summary>
+        /// This will add an annotation to any private field that needs to be renamed.
+        /// </summary>
+        internal sealed class CSharpLocalVariableAnnotationsRewriter : CSharpSyntaxRewriter
         {
-            switch (document.Project.Language)
+            private int _count;
+
+            internal static SyntaxNode AddAnnotations(SyntaxNode node, out int count)
             {
-                case LanguageNames.CSharp:
-                    return _csharpRule.ProcessAsync(document, syntaxRoot, cancellationToken);
-                default:
-                    throw new NotSupportedException();
+                var rewriter = new CSharpLocalVariableAnnotationsRewriter();
+                var newNode = rewriter.Visit(node);
+                count = rewriter._count;
+                return newNode;
+            }
+
+            public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
+            {
+                string methodName = node.Identifier.ToString();
+                if (methodName.Length > 0 && char.IsLower(methodName[0])) {
+                    node = node.WithAdditionalAnnotations(s_markerAnnotation);
+                    _count++;
+                }
+
+                return node;
             }
         }
     }
