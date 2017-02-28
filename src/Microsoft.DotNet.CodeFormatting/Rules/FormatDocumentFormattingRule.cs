@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Options;
@@ -45,6 +46,22 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             var originalSolution = document.Project.Solution;
             var optionSet = originalSolution.Workspace.Options;
             optionSet = optionSet.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
+            optionSet = optionSet.WithChangedOption(FormattingOptions.UseTabs, LanguageNames.CSharp, true);
+
+            // new line options
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInAnonymousMethods, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInControlBlocks, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInAnonymousTypes, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInObjectCollectionArrayInitializers, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInLambdaExpressionBody, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLineForElse, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLineForCatch, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLineForFinally, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLineForMembersInObjectInit, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLineForMembersInAnonymousTypes, false);
+            optionSet = optionSet.WithChangedOption(CSharpFormattingOptions.NewLineForClausesInQuery, false);
 
             document = await Formatter.FormatAsync(document, optionSet, cancellationToken: cancellationToken);
 
