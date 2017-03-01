@@ -87,6 +87,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             private static string GetNewFieldName(ISymbol fieldSymbol, bool isConstant)
             {
+                // NOTE (darren): don't rename things that are named like a constant already
+                // this is to allow naming static readonly fields like a constant
+                bool isNamedLikeAConstant = fieldSymbol.Name.Length >= 2 && fieldSymbol.Name[0] == 'k' && char.IsUpper(fieldSymbol.Name[1]);
+                if (isNamedLikeAConstant)
+                {
+                    return fieldSymbol.Name;
+                }
+
                 string camelCaseName = NamingUtil.ConvertToCamelCase(fieldSymbol.Name);
                 if (isConstant)
                 {
