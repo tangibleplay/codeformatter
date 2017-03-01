@@ -37,7 +37,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         /// <summary>
         /// Fix the new lines around open brace tokens.  An open brace should be followed by content, not a blank
-        /// line.  Remove those here.  
+        /// line.  Remove those here.
         /// </summary>
         private static SyntaxNode FixOpenBraces(SyntaxNode syntaxNode)
         {
@@ -70,9 +70,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             if (token.Kind() == SyntaxKind.CloseBraceToken &&
                 token.LeadingTrivia.All(x => x.IsKind(SyntaxKind.WhitespaceTrivia) || x.IsKind(SyntaxKind.EndOfLineTrivia)))
             {
-                // This is an open / close brace combo with no content inbetween.  Just return the 
-                // close brace and let the formatter handle the white space issues.  If there was a new line 
-                // between the two it will be attached to the open brace and hence maintained. 
+                // This is an open / close brace combo with no content inbetween.  Just return the
+                // close brace and let the formatter handle the white space issues.  If there was a new line
+                // between the two it will be attached to the open brace and hence maintained.
                 return token.WithLeadingTrivia(SyntaxTriviaList.Empty);
             }
 
@@ -92,7 +92,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         }
 
         /// <summary>
-        /// Close braces should never have a newline between the last line of content and the 
+        /// Close braces should never have a newline between the last line of content and the
         /// closing brace.  Also want to remove consecutive new lines before any comments or
         /// #pragma that preceeds the close brace.
         /// </summary>
@@ -119,14 +119,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             var triviaList = token.LeadingTrivia;
             if (triviaList.All(x => x.IsKind(SyntaxKind.WhitespaceTrivia) || x.IsKind(SyntaxKind.EndOfLineTrivia)))
             {
-                // Simplest case.  It's all new lines and white space.  
+                // Simplest case.  It's all new lines and white space.
                 if (EndsWithSimpleNewLine(token.GetPreviousToken().TrailingTrivia))
                 {
                     triviaList = SyntaxTriviaList.Empty;
                 }
                 else
                 {
-                    // new line and we are done. 
+                    // new line and we are done.
                     triviaList = SyntaxFactory.TriviaList(SyntaxUtil.GetBestNewLineTrivia(token));
                 }
             }
