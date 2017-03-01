@@ -49,7 +49,8 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     return true;
                 }
 
-                if (ifStatement.Else != null && !kDontReplaceSyntaxTypes.Contains(ifStatement.Else.Statement.GetType())) {
+                // NOTE (darren): else-if is handled as an Else statement with another If making formatting this weird.. just avoiding it for now
+                if (ifStatement.Else != null && !kDontReplaceSyntaxTypes.Contains(ifStatement.Else.Statement.GetType()) && ifStatement.Else.Statement.GetType() != typeof(IfStatementSyntax)) {
                     syntaxNode = syntaxNode.ReplaceNode(ifStatement.Else.Statement, SyntaxFactory.Block(ifStatement.Else.Statement));
                     return true;
                 }
