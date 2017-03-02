@@ -42,7 +42,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         protected abstract SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count);
 
-        protected abstract string GetNewNameFor(ISymbol symbol);
+        protected abstract string GetNewNameFor(string name);
 
         private async Task<Solution> Rename(Solution solution, DocumentId documentId, int count, CancellationToken cancellationToken)
         {
@@ -58,7 +58,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 // Make note, VB represents "fields" marked as "WithEvents" as properties, so don't be
                 // tempted to treat this as a IFieldSymbol. We only need the name, so ISymbol is enough.
                 var symbol = semanticModel.GetDeclaredSymbol(declaration, cancellationToken);
-                var newName = GetNewNameFor(symbol);
+                var newName = GetNewNameFor(symbol.Name);
 
                 // Can happen with pathologically bad field names like _
                 if (newName == symbol.Name)

@@ -106,6 +106,7 @@
     <Compile Include="Rules\HasNoCustomCopyrightHeaderFormattingRule.cs" />
     <Compile Include="Rules\CSharpNamingRule.cs" />
     <Compile Include="Rules\PrivateFieldNamingRule.cs" />
+    <Compile Include="Rules\PropertyNamingRule.cs" />
     <Compile Include="Rules\LocalVariableNamingRule.cs" />
     <Compile Include="Rules\MethodNamingRule.cs" />
     <Compile Include="Rules\UsingLocationRule.cs" />

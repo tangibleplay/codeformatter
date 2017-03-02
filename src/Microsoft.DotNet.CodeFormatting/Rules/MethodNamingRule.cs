@@ -29,9 +29,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             return CSharpLocalVariableAnnotationsRewriter.AddAnnotations(syntaxNode, out count);
         }
 
-        protected override string GetNewNameFor(ISymbol symbol)
+        protected override string GetNewNameFor(string name)
         {
-            return symbol.Name.Captialized();
+            return name.Captialized();
         }
 
         /// <summary>
