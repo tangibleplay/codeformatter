@@ -23,7 +23,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         public SyntaxNode Process(SyntaxNode root, string languageName)
         {
-            return UnicodeCharacterEscapingSyntaxRewriter.Rewriter.Visit(root);
+            // HACK (darren): don't need to escape sequences..
+            return root;
+            // return UnicodeCharacterEscapingSyntaxRewriter.Rewriter.Visit(root);
         }
 
         /// <summary>
