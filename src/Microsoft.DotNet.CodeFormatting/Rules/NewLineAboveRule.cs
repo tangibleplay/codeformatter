@@ -18,7 +18,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
     /// <summary>
-    /// Ensure there is a blank line above the first using and namespace in the file. 
+    /// Ensure there is a blank line above the first using and namespace in the file.
     /// </summary>
     [SyntaxRule(NewLineAboveRule.Name, NewLineAboveRule.Description, SyntaxRuleOrder.NewLineAboveFormattingRule)]
     internal sealed class NewLineAboveRule : CSharpOnlyFormattingRule, ISyntaxFormattingRule
@@ -64,7 +64,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 // The namespace node is typically preceeded by a using node.  In thate case the trivia will
                 // be split between the two nodes.  If the namespace already has a newline leading trivia then
                 // there is at least a single blank between the nodes as the using will have a trailing new
-                // line as well (in case of a single on it will be on the using).  
+                // line as well (in case of a single on it will be on the using).
+                return syntaxRoot;
+            }
+            else if (list.Any(trivia => trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)))
+            {
+                // if namespace is proceeded with a comment then we don't want add a new line
                 return syntaxRoot;
             }
             else
@@ -106,14 +111,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             {
                 if (node.Span.Start == 0)
                 {
-                    // First item in the file.  Do nothing for this case.  
+                    // First item in the file.  Do nothing for this case.
                     return list;
                 }
             }
             else
             {
-                // If there is no new line in the trailing trivia of the previous node then need to add 
-                // one to put this node on the next line. 
+                // If there is no new line in the trailing trivia of the previous node then need to add
+                // one to put this node on the next line.
                 if (prev.GetTrailingTrivia().Count == 0 || !prev.GetTrailingTrivia().Last().IsAnyEndOfLine())
                 {
                     list = list.Insert(0, newLineTrivia);
@@ -123,7 +128,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             // Ensure there are blank above #pragma directives here.  This is an attempt to maintain compatibility
             // with the original design of this rule which had special spacing rules for #pragma.  No reason
-            // was given for the special casing, only tests.  
+            // was given for the special casing, only tests.
             if (searchIndex < list.Count && list[0].IsKind(SyntaxKind.PragmaWarningDirectiveTrivia) && list[0].FullSpan.Start != 0)
             {
                 list = list.Insert(searchIndex, newLineTrivia);
@@ -137,10 +142,10 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         /// <summary>
         /// Ensure the trivia list has a blank line at the end.  Both the second to last
-        /// and final line may contain spaces. 
+        /// and final line may contain spaces.
         ///
         /// Note: This function assumes the trivia token before <param name="startIndex" />
-        /// is an end of line trivia.  
+        /// is an end of line trivia.
         /// </summary>
         private static void EnsureHasBlankLineAtEnd(ref SyntaxTriviaList list, int startIndex, SyntaxTrivia newLineTrivia)
         {
@@ -188,7 +193,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     list = list.Insert(eolIndex + 1, newLineTrivia);
                     break;
                 case StateBlankLine:
-                    // Nothing to do. 
+                    // Nothing to do.
                     break;
                 default:
                     Debug.Assert(false);
