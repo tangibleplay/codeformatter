@@ -51,8 +51,15 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
             {
+				bool isPublic = node.Modifiers.Any(SyntaxKind.PublicKeyword);
+				if (isPublic)
+				{
+					return node;
+				}
+
                 string methodName = node.Identifier.ToString();
-                if (methodName.Length > 0 && char.IsLower(methodName[0])) {
+                if (methodName.Length > 0 && char.IsLower(methodName[0]))
+				{
                     node = node.WithAdditionalAnnotations(s_markerAnnotation);
                     _count++;
                 }
