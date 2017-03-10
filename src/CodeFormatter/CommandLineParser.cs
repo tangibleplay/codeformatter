@@ -27,6 +27,7 @@ namespace CodeFormatter
             ImmutableDictionary<string, bool>.Empty,
             ImmutableArray<string>.Empty,
             ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty,
             null,
             allowTables: false,
             verbose: false);
@@ -36,6 +37,7 @@ namespace CodeFormatter
             ImmutableArray<string[]>.Empty,
             ImmutableArray<string>.Empty,
             ImmutableDictionary<string, bool>.Empty,
+            ImmutableArray<string>.Empty,
             ImmutableArray<string>.Empty,
             ImmutableArray<string>.Empty,
             null,
@@ -49,6 +51,7 @@ namespace CodeFormatter
         public readonly ImmutableDictionary<string, bool> RuleMap;
         public readonly ImmutableArray<string> FormatTargets;
         public readonly ImmutableArray<string> FileNames;
+        public readonly ImmutableArray<string> Folders;
         public readonly string Language;
         public readonly bool AllowTables;
         public readonly bool Verbose;
@@ -60,6 +63,7 @@ namespace CodeFormatter
             ImmutableDictionary<string, bool> ruleMap,
             ImmutableArray<string> formatTargets,
             ImmutableArray<string> fileNames,
+            ImmutableArray<string> folders,
             string language,
             bool allowTables,
             bool verbose)
@@ -69,6 +73,7 @@ namespace CodeFormatter
             CopyrightHeader = copyrightHeader;
             RuleMap = ruleMap;
             FileNames = fileNames;
+            Folders = folders;
             FormatTargets = formatTargets;
             Language = language;
             AllowTables = allowTables;
@@ -129,6 +134,7 @@ namespace CodeFormatter
     public static class CommandLineParser
     {
         private const string FileSwitch = "/file:";
+        private const string FolderSwitch = "/folder:";
         private const string ConfigSwitch = "/c:";
         private const string CopyrightWithFileSwitch = "/copyright:";
         private const string LanguageSwitch = "/lang:";
@@ -136,19 +142,20 @@ namespace CodeFormatter
         private const string RuleEnabledSwitch2 = "/rule:";
         private const string RuleDisabledSwitch = "/rule-:";
         private const string Usage =
-@"CodeFormatter [/file:<filename>] [/lang:<language>] [/c:<config>[,<config>...]>]
-    [/copyright(+|-):[<file>]] [/tables] [/nounicode] 
+@"CodeFormatter [/file:<filename>] [/folder:<foldername>] [/lang:<language>] [/c:<config>[,<config>...]>]
+    [/copyright(+|-):[<file>]] [/tables] [/nounicode]
     [/rule(+|-):rule1,rule2,...]  [/verbose]
     <project, solution or response file>
 
     /file           - Only apply changes to files with specified name
+    /folder 		- Only apply changes to files NOT in folders
     /lang           - Specifies the language to use when a responsefile is
                       specified. i.e. 'C#', 'Visual Basic', ... (default: 'C#')
     /c              - Additional preprocessor configurations the formatter
                       should run under.
-    /copyright(+|-) - Enables or disables (default) updating the copyright 
-                      header in files, optionally specifying a file 
-                      containing a custom copyright header.                   
+    /copyright(+|-) - Enables or disables (default) updating the copyright
+                      header in files, optionally specifying a file
+                      containing a custom copyright header.
     /nocopyright    - Do not update the copyright message.
     /tables         - Let tables opt out of formatting by defining
                       DOTNET_FORMATTER
@@ -177,6 +184,7 @@ namespace CodeFormatter
             var comparison = StringComparison.OrdinalIgnoreCase;
             var formatTargets = new List<string>();
             var fileNames = new List<string>();
+            var folders = new List<string>();
             var configBuilder = ImmutableArray.CreateBuilder<string[]>();
             var copyrightHeader = ImmutableArray<string>.Empty;
             var ruleMap = ImmutableDictionary<string, bool>.Empty;
@@ -216,7 +224,7 @@ namespace CodeFormatter
                         return CommandLineParseResult.CreateError(error);
                     }
                 }
-                else if (comparer.Equals(arg, "/copyright-") || comparer.Equals(arg, "/nocopyright")) 
+                else if (comparer.Equals(arg, "/copyright-") || comparer.Equals(arg, "/nocopyright"))
                 {   // We still check /nocopyright for backwards compat
 
                     ruleMap = ruleMap.SetItem(FormattingDefaults.CopyrightRuleName, false);
@@ -236,6 +244,10 @@ namespace CodeFormatter
                 else if (arg.StartsWith(FileSwitch, comparison))
                 {
                     fileNames.Add(arg.Substring(FileSwitch.Length));
+                }
+                else if (arg.StartsWith(FolderSwitch, comparison))
+                {
+                    folders.Add(arg.Substring(FolderSwitch.Length));
                 }
                 else if (arg.StartsWith(RuleEnabledSwitch1, comparison))
                 {
@@ -283,6 +295,7 @@ namespace CodeFormatter
                 ruleMap,
                 formatTargets.ToImmutableArray(),
                 fileNames.ToImmutableArray(),
+                folders.ToImmutableArray(),
                 language,
                 allowTables,
                 verbose);

@@ -25,6 +25,7 @@ namespace Microsoft.DotNet.CodeFormatting
         /// When non-empty the formatter will only process files with the specified name.
         /// </summary>
         internal ImmutableArray<string> FileNames { get; set; }
+        internal ImmutableArray<string> Folders { get; set; }
 
         internal IFormatLogger FormatLogger { get; set; }
 
@@ -33,6 +34,7 @@ namespace Microsoft.DotNet.CodeFormatting
         {
             CopyrightHeader = FormattingDefaults.DefaultCopyrightHeader;
             FileNames = ImmutableArray<string>.Empty;
+            Folders = ImmutableArray<string>.Empty;
             PreprocessorConfigurations = ImmutableArray<string[]>.Empty;
             FormatLogger = new ConsoleFormatLogger();
         }

@@ -16,6 +16,7 @@ namespace Microsoft.DotNet.CodeFormatting
         ImmutableArray<string> CopyrightHeader { get; set; }
         ImmutableArray<string[]> PreprocessorConfigurations { get; set; }
         ImmutableArray<string> FileNames { get; set; }
+        ImmutableArray<string> Folders { get; set; }
         ImmutableArray<IRuleMetadata> AllRules { get; }
         bool AllowTables { get; set; }
         bool Verbose { get; set; }

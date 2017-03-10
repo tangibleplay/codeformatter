@@ -14,8 +14,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.DotNet.CodeFormatting
 {
@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.CodeFormatting
     {
         /// <summary>
         /// Developers who want to opt out of the code formatter for items like unicode
-        /// tables can surround them with #if !DOTNET_FORMATTER.  
+        /// tables can surround them with #if !DOTNET_FORMATTER.
         /// </summary>
         internal const string TablePreprocessorSymbolName = "DOTNET_FORMATTER";
 
@@ -54,6 +54,12 @@ namespace Microsoft.DotNet.CodeFormatting
         {
             get { return _options.FileNames; }
             set { _options.FileNames = value; }
+        }
+
+        public ImmutableArray<string> Folders
+        {
+            get { return _options.Folders; }
+            set { _options.Folders = value; }
         }
 
         public IFormatLogger FormatLogger
@@ -172,7 +178,7 @@ namespace Microsoft.DotNet.CodeFormatting
 
         /// <summary>
         /// Remove the added table preprocessor symbol.  Don't want that saved into the project
-        /// file as a change. 
+        /// file as a change.
         /// </summary>
         private Solution RemoveTablePreprocessorSymbol(Solution newSolution, Solution oldSolution)
         {
@@ -255,10 +261,10 @@ namespace Microsoft.DotNet.CodeFormatting
         }
 
         /// <summary>
-        /// Semantics is not involved in this pass at all.  It is just a straight modification of the 
+        /// Semantics is not involved in this pass at all.  It is just a straight modification of the
         /// parse tree so there are no issues about ensuring the version of <see cref="SemanticModel"/> and
-        /// the <see cref="SyntaxNode"/> line up.  Hence we do this by iteraning every <see cref="Document"/> 
-        /// and processing all rules against them at once 
+        /// the <see cref="SyntaxNode"/> line up.  Hence we do this by iteraning every <see cref="Document"/>
+        /// and processing all rules against them at once
         /// </summary>
         private async Task<Solution> RunSyntaxPass(Solution originalSolution, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken)
         {

@@ -75,6 +75,7 @@
     <Compile Include="SemaphoreLock.cs" />
     <Compile Include="SyntaxUtil.cs" />
     <Compile Include="Filters\FilenameFilter.cs" />
+    <Compile Include="Filters\FolderFilter.cs" />
     <Compile Include="Filters\UsableFileFilter.cs" />
     <Compile Include="FormattingDefaults.cs" />
     <Compile Include="FormattingEngine.cs" />
