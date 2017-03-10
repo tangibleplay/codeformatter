@@ -247,7 +247,7 @@ namespace CodeFormatter
                 }
                 else if (arg.StartsWith(FolderSwitch, comparison))
                 {
-                    folders.Add(arg.Substring(FolderSwitch.Length));
+                    folders.AddRange(arg.Substring(FolderSwitch.Length).Split(','));
                 }
                 else if (arg.StartsWith(RuleEnabledSwitch1, comparison))
                 {
