@@ -95,6 +95,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     return fieldSymbol.Name;
                 }
 
+				bool isNamedLikeOldStyleConstant = fieldSymbol.Name == fieldSymbol.Name.ToUpper();
+				if (isNamedLikeOldStyleConstant)
+				{
+					isConstant = true;
+				}
+
                 string camelCaseName = NamingUtil.ConvertToCamelCase(fieldSymbol.Name);
                 if (isConstant)
                 {
