@@ -23,6 +23,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         private static HashSet<char> kHungarianNotationStarters = new HashSet<char>() {
             'm', // m_example
             's', // s_example
+			'k', // k_example
         };
 
         public static string ConvertToCamelCase(string name) {

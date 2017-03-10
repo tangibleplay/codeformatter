@@ -95,7 +95,10 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     return fieldSymbol.Name;
                 }
 
+				// if previously named like OLD_STYLE_CONSTANT or k_oldStyleConstant
+				// then treat it like it should be named as a constant
 				bool isNamedLikeOldStyleConstant = fieldSymbol.Name == fieldSymbol.Name.ToUpper();
+				isNamedLikeOldStyleConstant = isNamedLikeOldStyleConstant || fieldSymbol.Name.StartsWith("k_", StringComparison.OrdinalIgnoreCase);
 				if (isNamedLikeOldStyleConstant)
 				{
 					isConstant = true;
