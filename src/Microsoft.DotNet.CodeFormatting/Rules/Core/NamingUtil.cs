@@ -59,6 +59,11 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 name = Regex.Replace(name, @"_(\w)", (match) => match.Groups[1].Value.ToUpper(), RegexOptions.Compiled);
             }
 
+			if (name.Length > 0) {
+				// lower-case the first letter
+	            name = Regex.Replace(name, @"$\w", (match) => match.Groups[0].Value.ToLower(), RegexOptions.Compiled);
+			}
+
             return name;
         }
 
