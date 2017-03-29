@@ -124,10 +124,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 return isPrivate;
             }
 
+			private readonly static HashSet<string> kSerializedAttributeNames = new HashSet<string>() { "SerializeField", "JsonProperty" };
+
             private static bool IsSerializedField(FieldDeclarationSyntax fieldSyntax) {
                 foreach (AttributeListSyntax attributeList in fieldSyntax.AttributeLists)
                 {
-                    if (attributeList.DescendantNodes().OfType<AttributeSyntax>().Any(a => a.Name.ToString() == "SerializeField"))
+                    if (attributeList.DescendantNodes().OfType<AttributeSyntax>().Any(a => kSerializedAttributeNames.Contains(a.Name.ToString())))
                     {
                         return true;
                     }
