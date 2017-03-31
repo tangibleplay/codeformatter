@@ -103,12 +103,19 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 				}
 
 				var symbol = _semanticModel.GetSymbolInfo(node, _cancellationToken).Symbol;
-				if (symbol != null)
+				var containingSymbol = symbol != null ? symbol.ContainingSymbol : null;
+				if (containingSymbol != null)
 				{
-					// NOTE (darren): ideally we would want to reduce MyClass.MyPublicMethod() calls
-					// within the same class, but can't figure out how to get the expression's parent Symbol
-					// we can settle for private variables get reduced..
-                    return symbol.DeclaredAccessibility != Accessibility.Public;
+					foreach (var ancestorNode in node.Ancestors()) {
+						ISymbol ancestorSymbol = _semanticModel.GetDeclaredSymbol(ancestorNode, _cancellationToken);
+						if (ancestorSymbol == containingSymbol)
+						{
+							// if declared in same class - we can simplify
+							return true;
+						}
+					}
+
+					return false;
 				}
 
 				return false;
