@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         protected override SyntaxNode AddAnnotations(SyntaxNode syntaxNode, out int count)
         {
-            return CSharpPropertyAnnotationsRewriter.AddAnnotations(syntaxNode, out count);
+            return CSharpPropertyAnnotationsRewriter.AddAnnotations(document_, cancellationToken_, syntaxNode, out count);
         }
 
         protected override string GetNewNameFor(string name)
@@ -50,13 +50,23 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         {
             private int _count;
 
-            internal static SyntaxNode AddAnnotations(SyntaxNode node, out int count)
+			private Document document_;
+			private CancellationToken cancellationToken_;
+
+			private SemanticModel semanticModel_;
+
+            internal static SyntaxNode AddAnnotations(Document document, CancellationToken cancellationToken, SyntaxNode node, out int count)
             {
-                var rewriter = new CSharpPropertyAnnotationsRewriter();
+                var rewriter = new CSharpPropertyAnnotationsRewriter(document, cancellationToken);
                 var newNode = rewriter.Visit(node);
                 count = rewriter._count;
                 return newNode;
             }
+
+			public CSharpPropertyAnnotationsRewriter(Document document, CancellationToken cancellationToken) {
+				document_ = document;
+				cancellationToken_ = cancellationToken;
+			}
 
             public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
             {
@@ -64,6 +74,25 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 {
                     return node;
                 }
+
+				if (semanticModel_ == null)
+				{
+					semanticModel_ = document_.GetSemanticModelAsync(cancellationToken_).Result;
+				}
+
+				var symbol = semanticModel_.GetDeclaredSymbol(node, cancellationToken_);
+				if (symbol != null)
+				{
+					var containingSymbol = symbol.ContainingSymbol as ITypeSymbol;
+					if (containingSymbol != null)
+					{
+						// don't rename if not declared inside a class
+						if (containingSymbol != null && containingSymbol.TypeKind != TypeKind.Class)
+						{
+							return node;
+						}
+					}
+				}
 
                 if (IsSerializedField(node))
                 {

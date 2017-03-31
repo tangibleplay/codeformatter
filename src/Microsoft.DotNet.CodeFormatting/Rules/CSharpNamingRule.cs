@@ -23,8 +23,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         private const string s_renameAnnotationName = "RenameAnnotation";
         protected readonly static SyntaxAnnotation s_markerAnnotation = new SyntaxAnnotation("RenameMarkerAnnotation");
 
+		protected Document document_;
+		protected CancellationToken cancellationToken_;
+
         public async Task<Solution> ProcessAsync(Document document, SyntaxNode syntaxRoot, CancellationToken cancellationToken)
         {
+			document_ = document;
+			cancellationToken_ = cancellationToken;
+
             int count;
             var newSyntaxRoot = AddAnnotations(syntaxRoot, out count);
 
