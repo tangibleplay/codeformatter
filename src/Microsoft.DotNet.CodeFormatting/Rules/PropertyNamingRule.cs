@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         internal const string Name = "PropertyNames";
         internal const string Description = "Private properties are named like PropertyName_";
 
-        protected override SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count)
+        protected override SyntaxNode AddAnnotations(SyntaxNode syntaxNode, out int count)
         {
             return CSharpPropertyAnnotationsRewriter.AddAnnotations(syntaxNode, out count);
         }

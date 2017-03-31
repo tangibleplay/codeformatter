@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         internal const string Name = "LocalVariables";
         internal const string Description = "Local variables should not have _ in their name";
 
-        protected override SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count)
+        protected override SyntaxNode AddAnnotations(SyntaxNode syntaxNode, out int count)
         {
             return CSharpLocalVariableAnnotationsRewriter.AddAnnotations(syntaxNode, out count);
         }

@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         internal const string Name = "MethodNames";
         internal const string Description = "Ensure method names are capitalized";
 
-        protected override SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count)
+        protected override SyntaxNode AddAnnotations(SyntaxNode syntaxNode, out int count)
         {
             return CSharpLocalVariableAnnotationsRewriter.AddAnnotations(syntaxNode, out count);
         }

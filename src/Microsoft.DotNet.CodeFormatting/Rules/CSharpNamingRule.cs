@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         public async Task<Solution> ProcessAsync(Document document, SyntaxNode syntaxRoot, CancellationToken cancellationToken)
         {
             int count;
-            var newSyntaxRoot = AddPrivateFieldAnnotations(syntaxRoot, out count);
+            var newSyntaxRoot = AddAnnotations(syntaxRoot, out count);
 
             if (count == 0)
             {
@@ -40,7 +40,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             return solution;
         }
 
-        protected abstract SyntaxNode AddPrivateFieldAnnotations(SyntaxNode syntaxNode, out int count);
+        protected abstract SyntaxNode AddAnnotations(SyntaxNode syntaxNode, out int count);
 
         protected abstract string GetNewNameFor(string name);
 
